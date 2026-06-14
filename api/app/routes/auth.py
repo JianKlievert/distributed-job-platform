@@ -5,6 +5,7 @@ from app.schemas.user import UserCreate, UserLogin
 from app.models.user import User
 from app.database.dependencies import get_db
 from app.services.auth_service import hash_password, verify_password
+from app.services.jwt_service import create_access_token
 
 router = APIRouter(
     prefix="/auth",
@@ -54,8 +55,13 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             detail="Invalid credentials"
         )
 
+    access_token = create_access_token(
+        {
+            "user_id": db_user.id
+        }
+    )
+
     return {
-        "message": "Login successful",
-        "user_id": db_user.id,
-        "username": db_user.username
+        "access_token": access_token,
+        "token_type": "bearer"
     }
