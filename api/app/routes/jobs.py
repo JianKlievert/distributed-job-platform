@@ -7,7 +7,7 @@ from app.models.job import Job
 from app.schemas.job import JobCreate
 
 router = APIRouter(
-    prefix="/jobs"
+    prefix="/jobs",
     tags=["Jobs"]
 )
 
@@ -16,7 +16,7 @@ def create_job(
     job: JobCreate,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
-);
+):
 
     new_job = Job(
         title=job.title,
