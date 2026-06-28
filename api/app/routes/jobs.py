@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.dependencies import get_db
 from app.database.auth import get_current_user
 from app.models.job import Job
-from app.schemas.job import JobCreate
+from app.schemas.job import JobCreate, JobResponse
 
 router = APIRouter(
     prefix="/jobs",
@@ -33,3 +33,11 @@ def create_job(
         "message": "Job created successfully",
         "id": new_job.id
     }
+
+@router.get("/", response_model=list[JobResponse])
+def get_jobs(
+    db: Session = Depends(get_db)
+):
+    jobs = db.query(Job).all()
+
+    return jobs

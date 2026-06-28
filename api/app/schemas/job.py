@@ -6,3 +6,13 @@ class JobCreate(BaseModel):
     description: str
     location: str
     salary: int
+
+class JobResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    location: str
+    salary: int
+
+    class Config:
+        from_attributes = True
