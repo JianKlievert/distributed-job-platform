@@ -43,3 +43,21 @@ def get_jobs(
     jobs = db.query(Job).all()
 
     return jobs
+
+
+@router.get("/{job_id}", response_model=JobResponse)
+def get_job(
+    job_id: int,
+    db: Session = Depends(get_db)
+):
+    job = db.query(Job).filter(
+        Job.id == job_id
+    ).first()
+
+    if not job:
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found"
+        )
+
+    return job
