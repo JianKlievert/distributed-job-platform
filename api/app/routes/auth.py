@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordRequestForm
 
-from app.schemas.user import UserCreate, UserLogin
+from app.schemas.user import UserCreate
 from app.models.user import User
 from app.database.dependencies import get_db
 from app.services.auth_service import hash_password, verify_password
@@ -15,7 +16,11 @@ router = APIRouter(
 
 
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+
     hashed_password = hash_password(user.password)
 
     new_user = User(
@@ -36,9 +41,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     }
 
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+
     db_user = db.query(User).filter(
-        User.email == user.email
+        User.username == form_data.username
     ).first()
 
     if not db_user:
@@ -48,7 +57,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         )
 
     if not verify_password(
-        user.password,
+        form_data.password,
         db_user.password
     ):
         raise HTTPException(
@@ -69,7 +78,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def get_me(
-    current_user=Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     return {
         "id": current_user.id,
